@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UiModule } from './ui/ui.module';
+import { ImageModule } from './image/image.module';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { UiModule } from './ui/ui.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    UiModule
+    UiModule,
+    ImageModule
   ],
   providers: [],
   bootstrap: [AppComponent]
