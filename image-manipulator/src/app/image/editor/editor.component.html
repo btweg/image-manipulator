@@ -1,3 +1,8 @@
 <input type="file" (change)="selectFile($event)" multiple="false"/> 
 
+<label for="sharpness">Sharpness</label>
+<div>
+    <input type="range" id="sharpness" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="sharpness"/>
+    <span>{{sharpness}}</span>
+</div>
 <canvas #canvas id="canvas"></canvas>
