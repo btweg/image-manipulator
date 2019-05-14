@@ -11,7 +11,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   sharpness = 0;
 
-  originalImage: CanvasImageSource;
+  originalImage = new Image();
 
   @ViewChild('canvas') canvas: ElementRef;
 
@@ -43,25 +43,63 @@ export class EditorComponent implements OnInit, AfterViewInit{
   }
 
   applyFilters() {
+    this.resetCanvas();
+    const width = this.canvas.nativeElement.width;
+    const height = this.canvas.nativeElement.height;
     // tslint:disable-next-line: max-line-length
-    const imageData = this.context.getImageData(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+    const imageData = this.context.getImageData(0, 0, width, height);
 
     let newImageData: ImageData;
 
     // tslint:disable-next-line: max-line-length
-    newImageData = new ImageData(this.sharpenImage(imageData.data, this.sharpness), this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+    newImageData = new ImageData(this.sharpenImage(imageData.data, width, height, this.sharpness), width, height);
 
     this.context.putImageData(newImageData, 0, 0);
   }
 
-  sharpenImage(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
-    for (let i = 0; i < imageData.length; i += 1) {
-      imageData[i] = Math.floor(imageData[i] * 1.2);
-      if (imageData[i] > 255) {
-        imageData[i] = 255;
-      }
+  // tslint:disable-next-line: max-line-length
+  sharpenImage(imageData: Uint8ClampedArray, width: number, height: number, level: number): Uint8ClampedArray {
+    // get chunks of 3 rows
+    if (level < 5) {
+      return imageData;
     }
-    return imageData;
+    const newImage = new Uint8ClampedArray(imageData);
+    const pixels = width * height;
+    for (let i = 0; i < imageData.length; i += 4) {
+
+      const redPixels = [];
+      // const greenPixels = [];
+      // const bluePixels = [];
+
+      // red pixels
+      // sharpen [-1,-1,-1,-1, level / 4 , -1 ,-1, -1, -1]
+      redPixels.push(imageData[i - height - 4] * -1);
+      redPixels.push(imageData[i - height] * -1);
+      redPixels.push(imageData[i - height + 4] * -1);
+      redPixels.push(imageData[i - 4] * -1);
+      redPixels.push(imageData[i] * level / 4);
+      redPixels.push(imageData[i + 4] * -1);
+      redPixels.push(imageData[i + height - 4] * -1);
+      redPixels.push(imageData[i + height] * -1);
+      redPixels.push(imageData[i + height + 4] * -1);
+
+      // when pixel is out of bounds, use starting value
+      let redSum = 0;
+      redPixels.forEach((pixel) => {
+        if (pixel) {
+          redSum += pixel;
+        }
+      });
+      newImage[i] = redSum;
+    }
+
+    return newImage;
+  }
+
+  resetCanvas() {
+    this.context.drawImage(this.originalImage, 0, 0,
+                           this.originalImage.width, this.originalImage.height, 0, 0,
+                           this.canvas.nativeElement.width, this.canvas.nativeElement.height);
   }
 
 }
