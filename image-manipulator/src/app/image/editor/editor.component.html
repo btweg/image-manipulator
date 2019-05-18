@@ -11,4 +11,11 @@
     <input type="range" id="brightness" (mouseup)="applyFilters()" min="-100" max="100" step="1" [(ngModel)]="brightness"/>
     <span>{{brightness}}</span>
 </div>
+
+<label for="contrast">Contrast</label>
+<div>
+    <input type="range" id="contrast" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="contrast"/>
+    <span>{{contrast}}</span>
+</div>
+
 <canvas #canvas id="canvas"></canvas>

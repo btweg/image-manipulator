@@ -11,6 +11,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   sharpness: number = 0;
   brightness: number = 0;
+  contrast: number = 0;
 
   originalImage = new Image();
 
@@ -50,13 +51,16 @@ export class EditorComponent implements OnInit, AfterViewInit{
     // tslint:disable-next-line: max-line-length
     const imageData = this.context.getImageData(0, 0, width, height);
 
-    let newImageBinaryData: Uint8ClampedArray;
+    let newImageBinaryData = new Uint8ClampedArray(imageData.data);
 
     // tslint:disable-next-line: max-line-length
-    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(imageData.data, width, height, this.sharpness));
+    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(newImageBinaryData, width, height, this.sharpness));
 
     // tslint:disable-next-line: max-line-length
     newImageBinaryData = new Uint8ClampedArray(this.brightenImage(newImageBinaryData, this.brightness));
+
+// tslint:disable-next-line: max-line-length
+    newImageBinaryData = new Uint8ClampedArray(this.contrastImage(newImageBinaryData, this.contrast));
 
     // create new image from manipulated pixel data
     const newImageData = new ImageData(newImageBinaryData, width, height);
@@ -66,10 +70,11 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   // tslint:disable-next-line: max-line-length
   sharpenImage(imageData: Uint8ClampedArray, width: number, height: number, level: number): Uint8ClampedArray {
-    // get chunks of 3 rows
+
     if (level < 5) {
       return imageData;
     }
+
     const newImage = new Uint8ClampedArray(imageData);
     const pixels = width * height;
     for (let i = 0; i < imageData.length; i += 4) {
@@ -80,15 +85,15 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
       // red pixels
       // sharpen [-1,-1,-1,-1, level / 4 , -1 ,-1, -1, -1]
-      redPixels.push(imageData[i - height - 4] * 0);
+      redPixels.push(imageData[i - height - 4] * -1);
       redPixels.push(imageData[i - height] * -1);
-      redPixels.push(imageData[i - height + 4] * 0);
+      redPixels.push(imageData[i - height + 4] * -1);
       redPixels.push(imageData[i - 4] * -1);
-      redPixels.push(imageData[i] * 5);
+      redPixels.push(imageData[i] * level * .09);
       redPixels.push(imageData[i + 4] * -1);
-      redPixels.push(imageData[i + height - 4] * 0);
+      redPixels.push(imageData[i + height - 4] * -1);
       redPixels.push(imageData[i + height] * -1);
-      redPixels.push(imageData[i + height + 4] * 0);
+      redPixels.push(imageData[i + height + 4] * -1);
 
       // when pixel is out of bounds, use starting value
       let redSum = 0;
@@ -97,7 +102,51 @@ export class EditorComponent implements OnInit, AfterViewInit{
           redSum += pixel;
         }
       });
+      /*
+      // green pixels
+      greenPixels.push(imageData[i + 1 - height - 4] * -1);
+      greenPixels.push(imageData[i + 1 - height] * -1);
+      greenPixels.push(imageData[i + 1 - height + 4] * -1);
+      greenPixels.push(imageData[i + 1 - 4] * -1);
+      greenPixels.push(imageData[i + 1] * level * .09);
+      greenPixels.push(imageData[i + 1 + 4] * -1);
+      greenPixels.push(imageData[i + 1 + height - 4] * -1);
+      greenPixels.push(imageData[i + 1 + height] * -1);
+      greenPixels.push(imageData[i + 1 + height + 4] * -1);
+
+      // when pixel is out of bounds, use starting value
+      let greenSum = 0;
+      greenPixels.forEach((pixel) => {
+        if (pixel) {
+          greenSum += pixel;
+        }
+      });
+
+      // blue pixels
+      bluePixels.push(imageData[i + 2 - height - 4] * -1);
+      bluePixels.push(imageData[i + 2 - height] * -1);
+      bluePixels.push(imageData[i + 2 - height + 4] * -1);
+      bluePixels.push(imageData[i + 2 - 4] * -1);
+      bluePixels.push(imageData[i + 2] * level * .09);
+      bluePixels.push(imageData[i + 2 + 4] * -1);
+      bluePixels.push(imageData[i + 2 + height - 4] * -1);
+      bluePixels.push(imageData[i + 2 + height] * -1);
+      bluePixels.push(imageData[i + 2 + height + 4] * -1);
+
+      // when pixel is out of bounds, use starting value
+      let blueSum = 0;
+      bluePixels.forEach((pixel) => {
+        if (pixel) {
+          blueSum += pixel;
+        }
+      });
+      */
+
+
+
       newImage[i] = redSum;
+      // ewImage[i + 1] = greenSum;
+      // newImage[i + 2] = blueSum;
     }
 
     return newImage;
@@ -118,6 +167,20 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
     return newImage;
 
+  }
+
+  contrastImage(imageData: Uint8ClampedArray, level: number) {
+
+    const factor = (259.0 * (level + 255.0)) / (255.0 * (259.0 - level));
+    const newImage = new Uint8ClampedArray(imageData);
+
+    for (let i = 0; i < imageData.length; i += 4) {
+      newImage[i] = factor * (imageData[i] - 128.0) + 128.0;
+      newImage[i + 1] = factor * (imageData[i + 1] - 128.0) + 128.0;
+      newImage[i + 2] = factor * (imageData[i + 2] - 128.0) + 128.0;
+    }
+
+    return newImage;
   }
 
   resetCanvas() {
