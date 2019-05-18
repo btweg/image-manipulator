@@ -5,4 +5,10 @@
     <input type="range" id="sharpness" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="sharpness"/>
     <span>{{sharpness}}</span>
 </div>
+
+<label for="brightness">Brightness</label>
+<div>
+    <input type="range" id="brightness" (mouseup)="applyFilters()" min="-100" max="100" step="1" [(ngModel)]="brightness"/>
+    <span>{{brightness}}</span>
+</div>
 <canvas #canvas id="canvas"></canvas>
