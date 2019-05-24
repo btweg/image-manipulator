@@ -15,6 +15,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
   simpleDiffuse: number = 0;
   noise: number = 0;
   emboss: number = 0;
+  redscale: number = 0;
 
   originalImage = new Image();
 
@@ -49,7 +50,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   applyFilters() {
     this.resetCanvas();
-    const width = this.canvas.nativeElement.width * 4;
+    const width = this.canvas.nativeElement.width;
     const height = this.canvas.nativeElement.height;
     // tslint:disable-next-line: max-line-length
     const imageData = this.context.getImageData(0, 0, width, height);
@@ -57,7 +58,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
     let newImageBinaryData = new Uint8ClampedArray(imageData.data);
 
     // tslint:disable-next-line: max-line-length
-    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(newImageBinaryData, width, this.sharpness));
+    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(newImageBinaryData, width * 4, this.sharpness));
 
     // tslint:disable-next-line: max-line-length
     newImageBinaryData = new Uint8ClampedArray(this.brightenImage(newImageBinaryData, this.brightness));
@@ -70,6 +71,9 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
     // tslint:disable-next-line: max-line-length
     newImageBinaryData = new Uint8ClampedArray(this.embossImage(newImageBinaryData, width * 4, this.emboss));
+
+    // tslint:disable-next-line: max-line-length
+    newImageBinaryData = new Uint8ClampedArray(this.redscaleImage(newImageBinaryData, this.redscale * 2));
 
     // create new image from manipulated pixel data
     const newImageData = new ImageData(newImageBinaryData, width, height);
@@ -150,6 +154,26 @@ export class EditorComponent implements OnInit, AfterViewInit{
     return this.convoluteImage(matrix, imageData, width, level);
   }
 
+  redscaleImage(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
+
+    if (level === 0) {
+      return imageData;
+    }
+
+    const newImage = new Uint8ClampedArray(imageData);
+    for (let i = 0; i < imageData.length; i += 4) {
+      const r = imageData[i];
+      const g = imageData[i + 1];
+      const b = imageData[i + 2];
+
+      newImage[i] = r * 1.35 * (level / 75);
+      newImage[i + 1] = g * .75 * (level / 75);
+      newImage[i + 2] = 0;
+    }
+
+    return newImage;
+  }
+
   /**
    *
    * @param matrix 1D array representing 3x3 matrix of pixels
@@ -215,10 +239,11 @@ export class EditorComponent implements OnInit, AfterViewInit{
       newImage[i + 1] = imageData[i + 1] + (greenSum * (level / 100));
       newImage[i + 2] = imageData[i + 2] + (blueSum * (level / 100));
       */
-
+      
       newImage[i] =  (redSum * (level / 100));
       newImage[i + 1] = (greenSum * (level / 100));
       newImage[i + 2] = (blueSum * (level / 100));
+
 
     }
 

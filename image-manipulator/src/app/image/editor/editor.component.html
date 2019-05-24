@@ -30,5 +30,11 @@
     <span>{{emboss}}</span>
 </div>
 
+<label for="redscale">Fry</label>
+<div>
+    <input type="range" id="redscale" (mouseup)="applyFilters()" min="0" max="50" step=".5" [(ngModel)]="redscale"/>
+    <span>{{redscale * 2}}</span>
+</div>
+
 
 <canvas #canvas id="canvas"></canvas>
