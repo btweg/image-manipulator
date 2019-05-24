@@ -10,7 +10,7 @@
     <div class="col-md">
       <label for="sharpness">Sharpness</label>
       <div>
-        <input type="range" id="sharpness" (mouseup)="applyFilters()" min="0" max="100" step="1"
+        <input type="range" id="sharpness" (change)="applyFilters()" min="0" max="100" step="1"
           [(ngModel)]="sharpness" />
         <span>{{sharpness}}</span>
       </div>
@@ -19,7 +19,7 @@
     <div class="col-md">
       <label for="brightness">Brightness</label>
       <div>
-        <input type="range" id="brightness" (mouseup)="applyFilters()" min="-100" max="100" step="1"
+        <input type="range" id="brightness" (change)="applyFilters()" min="-100" max="100" step="1"
           [(ngModel)]="brightness" />
         <span>{{brightness}}</span>
       </div>
@@ -28,7 +28,7 @@
     <div class="col-md">
       <label for="contrast">Contrast</label>
       <div>
-        <input type="range" id="contrast" (mouseup)="applyFilters()" min="-100" max="100" step="1"
+        <input type="range" id="contrast" (change)="applyFilters()" min="-100" max="100" step="1"
           [(ngModel)]="contrast" />
         <span>{{contrast}}</span>
       </div>
@@ -37,7 +37,7 @@
     <div class="col-md">
       <label for="noise">Noise</label>
       <div>
-        <input type="range" id="noise" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="noise" />
+        <input type="range" id="noise" (change)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="noise" />
         <span>{{noise}}</span>
       </div>
     </div>
@@ -45,7 +45,7 @@
     <div class="col-md">
       <label for="emboss">Emboss</label>
       <div>
-        <input type="range" id="emboss" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="emboss" />
+        <input type="range" id="emboss" (change)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="emboss" />
         <span>{{emboss}}</span>
       </div>
     </div>
@@ -53,7 +53,7 @@
     <div class="col-md">
       <label for="redscale">Fry</label>
       <div>
-        <input type="range" class="form-control-range" id="redscale" (mouseup)="applyFilters()" min="0" max="50"
+        <input type="range" class="form-control-range" id="redscale" (change)="applyFilters()" min="0" max="50"
           step=".5" [(ngModel)]="redscale" />
         <span>{{redscale * 2}}</span>
       </div>
