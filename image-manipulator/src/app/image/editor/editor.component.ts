@@ -12,6 +12,9 @@ export class EditorComponent implements OnInit, AfterViewInit{
   sharpness: number = 0;
   brightness: number = 0;
   contrast: number = 0;
+  simpleDiffuse: number = 0;
+  noise: number = 0;
+  emboss: number = 0;
 
   originalImage = new Image();
 
@@ -46,7 +49,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   applyFilters() {
     this.resetCanvas();
-    const width = this.canvas.nativeElement.width;
+    const width = this.canvas.nativeElement.width * 4;
     const height = this.canvas.nativeElement.height;
     // tslint:disable-next-line: max-line-length
     const imageData = this.context.getImageData(0, 0, width, height);
@@ -54,13 +57,19 @@ export class EditorComponent implements OnInit, AfterViewInit{
     let newImageBinaryData = new Uint8ClampedArray(imageData.data);
 
     // tslint:disable-next-line: max-line-length
-    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(newImageBinaryData, width, height, this.sharpness));
+    newImageBinaryData = new Uint8ClampedArray(this.sharpenImage(newImageBinaryData, width, this.sharpness));
 
     // tslint:disable-next-line: max-line-length
     newImageBinaryData = new Uint8ClampedArray(this.brightenImage(newImageBinaryData, this.brightness));
 
-// tslint:disable-next-line: max-line-length
+    // tslint:disable-next-line: max-line-length
     newImageBinaryData = new Uint8ClampedArray(this.contrastImage(newImageBinaryData, this.contrast));
+
+    // tslint:disable-next-line: max-line-length
+    newImageBinaryData = new Uint8ClampedArray(this.addNoise(newImageBinaryData, this.noise));
+
+    // tslint:disable-next-line: max-line-length
+    newImageBinaryData = new Uint8ClampedArray(this.embossImage(newImageBinaryData, width * 4, this.emboss));
 
     // create new image from manipulated pixel data
     const newImageData = new ImageData(newImageBinaryData, width, height);
@@ -69,87 +78,14 @@ export class EditorComponent implements OnInit, AfterViewInit{
   }
 
   // tslint:disable-next-line: max-line-length
-  sharpenImage(imageData: Uint8ClampedArray, width: number, height: number, level: number): Uint8ClampedArray {
+  sharpenImage(imageData: Uint8ClampedArray, width: number, level: number): Uint8ClampedArray {
 
-    if (level < 5) {
+    if (level === 0) {
       return imageData;
     }
 
-    const newImage = new Uint8ClampedArray(imageData);
-    const pixels = width * height;
-    for (let i = 0; i < imageData.length; i += 4) {
-
-      const redPixels = [];
-      // const greenPixels = [];
-      // const bluePixels = [];
-
-      // red pixels
-      // sharpen [-1,-1,-1,-1, level / 4 , -1 ,-1, -1, -1]
-      redPixels.push(imageData[i - height - 4] * -1);
-      redPixels.push(imageData[i - height] * -1);
-      redPixels.push(imageData[i - height + 4] * -1);
-      redPixels.push(imageData[i - 4] * -1);
-      redPixels.push(imageData[i] * level * .09);
-      redPixels.push(imageData[i + 4] * -1);
-      redPixels.push(imageData[i + height - 4] * -1);
-      redPixels.push(imageData[i + height] * -1);
-      redPixels.push(imageData[i + height + 4] * -1);
-
-      // when pixel is out of bounds, use starting value
-      let redSum = 0;
-      redPixels.forEach((pixel) => {
-        if (pixel) {
-          redSum += pixel;
-        }
-      });
-      /*
-      // green pixels
-      greenPixels.push(imageData[i + 1 - height - 4] * -1);
-      greenPixels.push(imageData[i + 1 - height] * -1);
-      greenPixels.push(imageData[i + 1 - height + 4] * -1);
-      greenPixels.push(imageData[i + 1 - 4] * -1);
-      greenPixels.push(imageData[i + 1] * level * .09);
-      greenPixels.push(imageData[i + 1 + 4] * -1);
-      greenPixels.push(imageData[i + 1 + height - 4] * -1);
-      greenPixels.push(imageData[i + 1 + height] * -1);
-      greenPixels.push(imageData[i + 1 + height + 4] * -1);
-
-      // when pixel is out of bounds, use starting value
-      let greenSum = 0;
-      greenPixels.forEach((pixel) => {
-        if (pixel) {
-          greenSum += pixel;
-        }
-      });
-
-      // blue pixels
-      bluePixels.push(imageData[i + 2 - height - 4] * -1);
-      bluePixels.push(imageData[i + 2 - height] * -1);
-      bluePixels.push(imageData[i + 2 - height + 4] * -1);
-      bluePixels.push(imageData[i + 2 - 4] * -1);
-      bluePixels.push(imageData[i + 2] * level * .09);
-      bluePixels.push(imageData[i + 2 + 4] * -1);
-      bluePixels.push(imageData[i + 2 + height - 4] * -1);
-      bluePixels.push(imageData[i + 2 + height] * -1);
-      bluePixels.push(imageData[i + 2 + height + 4] * -1);
-
-      // when pixel is out of bounds, use starting value
-      let blueSum = 0;
-      bluePixels.forEach((pixel) => {
-        if (pixel) {
-          blueSum += pixel;
-        }
-      });
-      */
-
-
-
-      newImage[i] = redSum;
-      // ewImage[i + 1] = greenSum;
-      // newImage[i + 2] = blueSum;
-    }
-
-    return newImage;
+    const matrix = [0, -1, 0, -1, 4, -1, 0, -1, 0];
+    return this.convoluteImage(matrix, imageData, width, level);
   }
 
   brightenImage(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
@@ -169,7 +105,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   }
 
-  contrastImage(imageData: Uint8ClampedArray, level: number) {
+  contrastImage(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
 
     const factor = (259.0 * (level + 255.0)) / (255.0 * (259.0 - level));
     const newImage = new Uint8ClampedArray(imageData);
@@ -178,6 +114,112 @@ export class EditorComponent implements OnInit, AfterViewInit{
       newImage[i] = factor * (imageData[i] - 128.0) + 128.0;
       newImage[i + 1] = factor * (imageData[i + 1] - 128.0) + 128.0;
       newImage[i + 2] = factor * (imageData[i + 2] - 128.0) + 128.0;
+    }
+
+    return newImage;
+  }
+
+  simpleDiffuseImage(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
+    const newImage = new Uint8ClampedArray(imageData);
+
+    return newImage;
+  }
+
+  addNoise(imageData: Uint8ClampedArray, level: number): Uint8ClampedArray {
+    const newImage = new Uint8ClampedArray(imageData);
+
+    for (let i = 0; i < imageData.length; i += 4) {
+      // generate random scalar for noise
+      const noiseLevel = (Math.random() * (0.5 - -0.5) + -0.5) * level;
+      newImage[i] = imageData[i] + noiseLevel;
+      newImage[i + 1] = imageData[i + 1] + noiseLevel;
+      newImage[i + 2] = imageData[i + 2] + noiseLevel;
+    }
+    return newImage;
+  }
+
+  embossImage(imageData: Uint8ClampedArray, width: number, level: number): Uint8ClampedArray {
+    if (level === 0) {
+      return imageData;
+    }
+
+    const matrix = [
+      -2, -1, 0,
+      -1,  1, 1,
+      0, 1,  2];
+    return this.convoluteImage(matrix, imageData, width, level);
+  }
+
+  /**
+   *
+   * @param matrix 1D array representing 3x3 matrix of pixels
+   * @param imageData pixel data
+   * @param width (Pixel width * 4) of image
+   * @param level number from 0-100 for strength of convolution
+   */
+  // tslint:disable-next-line: max-line-length
+  convoluteImage(matrix: number[], imageData: Uint8ClampedArray, width: number, level: number): Uint8ClampedArray {
+
+    const newImage = new Uint8ClampedArray(imageData);
+
+    for (let i = 0; i < imageData.length; i += 4) {
+
+      const redPixels = [];
+      const greenPixels = [];
+      const bluePixels = [];
+
+      redPixels.push(imageData[i - width - 4] * matrix[0]);
+      redPixels.push(imageData[i - width] * matrix[1]);
+      redPixels.push(imageData[i - width + 4] * matrix[2]);
+      redPixels.push(imageData[i - 4] * matrix[3]);
+      redPixels.push(imageData[i] * 4 * matrix[4]);
+      redPixels.push(imageData[i + 4] * matrix[5]);
+      redPixels.push(imageData[i + width - 4] * matrix[6]);
+      redPixels.push(imageData[i + width] * -1);
+      redPixels.push(imageData[i + width + 4] * matrix[7]);
+
+      greenPixels.push(imageData[i + 1 - width - 4] * matrix[0]);
+      greenPixels.push(imageData[i + 1 - width] * matrix[1]);
+      greenPixels.push(imageData[i + 1 - width + 4] * matrix[2]);
+      greenPixels.push(imageData[i + 1 - 4] * matrix[3]);
+      greenPixels.push(imageData[i + 1] * 4 * matrix[4]);
+      greenPixels.push(imageData[i + 1 + 4] * matrix[5]);
+      greenPixels.push(imageData[i + 1 + width - 4] * matrix[6]);
+      greenPixels.push(imageData[i + 1 + width] * -1);
+      greenPixels.push(imageData[i + 1 + width + 4] * matrix[7]);
+
+      bluePixels.push(imageData[i + 2 - width - 4] * matrix[0]);
+      bluePixels.push(imageData[i + 2 - width] * matrix[1]);
+      bluePixels.push(imageData[i + 2 - width + 4] * matrix[2]);
+      bluePixels.push(imageData[i + 2 - 4] * matrix[3]);
+      bluePixels.push(imageData[i + 2] * 4 * matrix[4]);
+      bluePixels.push(imageData[i + 2 + 4] * matrix[5]);
+      bluePixels.push(imageData[i + 2 + width - 4] * matrix[6]);
+      bluePixels.push(imageData[i + 2 + width] * -1);
+      bluePixels.push(imageData[i + 2 + width + 4] * matrix[7]);
+
+      const redSum = redPixels.reduce((prev, current) => {
+        return prev + current;
+      }, 0);
+
+      const greenSum = greenPixels.reduce((prev, current) => {
+        return prev + current;
+      }, 0);
+
+      const blueSum = bluePixels.reduce((prev, current) => {
+        return prev + current;
+      }, 0);
+
+      /*
+      newImage[i] = imageData[i] + (redSum * (level / 100));
+      newImage[i + 1] = imageData[i + 1] + (greenSum * (level / 100));
+      newImage[i + 2] = imageData[i + 2] + (blueSum * (level / 100));
+      */
+
+      newImage[i] =  (redSum * (level / 100));
+      newImage[i + 1] = (greenSum * (level / 100));
+      newImage[i + 2] = (blueSum * (level / 100));
+
     }
 
     return newImage;

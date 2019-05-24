@@ -14,8 +14,21 @@
 
 <label for="contrast">Contrast</label>
 <div>
-    <input type="range" id="contrast" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="contrast"/>
+    <input type="range" id="contrast" (mouseup)="applyFilters()" min="-100" max="100" step="1" [(ngModel)]="contrast"/>
     <span>{{contrast}}</span>
 </div>
+
+<label for="noise">Noise</label>
+<div>
+    <input type="range" id="noise" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="noise"/>
+    <span>{{noise}}</span>
+</div>
+
+<label for="emboss">Emboss</label>
+<div>
+    <input type="range" id="emboss" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="emboss"/>
+    <span>{{emboss}}</span>
+</div>
+
 
 <canvas #canvas id="canvas"></canvas>
