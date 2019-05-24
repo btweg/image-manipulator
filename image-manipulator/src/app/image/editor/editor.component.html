@@ -1,40 +1,67 @@
-<input type="file" (change)="selectFile($event)" multiple="false"/> 
+<div class="container">
+  <div class="row justify-content-center">
+    <input #file id="file" type="file" accept="image/*" (change)="selectFile($event)" multiple="false" />
+    <button type="button" for="file" class="btn btn-outline-dark" (click)="file.click()">
+      Select Image
+    </button>
+  </div>
 
-<label for="sharpness">Sharpness</label>
-<div>
-    <input type="range" id="sharpness" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="sharpness"/>
-    <span>{{sharpness}}</span>
+  <div class="row">
+    <div class="col-md">
+      <label for="sharpness">Sharpness</label>
+      <div>
+        <input type="range" id="sharpness" (mouseup)="applyFilters()" min="0" max="100" step="1"
+          [(ngModel)]="sharpness" />
+        <span>{{sharpness}}</span>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <label for="brightness">Brightness</label>
+      <div>
+        <input type="range" id="brightness" (mouseup)="applyFilters()" min="-100" max="100" step="1"
+          [(ngModel)]="brightness" />
+        <span>{{brightness}}</span>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <label for="contrast">Contrast</label>
+      <div>
+        <input type="range" id="contrast" (mouseup)="applyFilters()" min="-100" max="100" step="1"
+          [(ngModel)]="contrast" />
+        <span>{{contrast}}</span>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <label for="noise">Noise</label>
+      <div>
+        <input type="range" id="noise" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="noise" />
+        <span>{{noise}}</span>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <label for="emboss">Emboss</label>
+      <div>
+        <input type="range" id="emboss" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="emboss" />
+        <span>{{emboss}}</span>
+      </div>
+    </div>
+
+    <div class="col-md">
+      <label for="redscale">Fry</label>
+      <div>
+        <input type="range" class="form-control-range" id="redscale" (mouseup)="applyFilters()" min="0" max="50"
+          step=".5" [(ngModel)]="redscale" />
+        <span>{{redscale * 2}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <canvas #canvas id="canvas"></canvas>
+  </div>
+
 </div>
-
-<label for="brightness">Brightness</label>
-<div>
-    <input type="range" id="brightness" (mouseup)="applyFilters()" min="-100" max="100" step="1" [(ngModel)]="brightness"/>
-    <span>{{brightness}}</span>
-</div>
-
-<label for="contrast">Contrast</label>
-<div>
-    <input type="range" id="contrast" (mouseup)="applyFilters()" min="-100" max="100" step="1" [(ngModel)]="contrast"/>
-    <span>{{contrast}}</span>
-</div>
-
-<label for="noise">Noise</label>
-<div>
-    <input type="range" id="noise" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="noise"/>
-    <span>{{noise}}</span>
-</div>
-
-<label for="emboss">Emboss</label>
-<div>
-    <input type="range" id="emboss" (mouseup)="applyFilters()" min="0" max="100" step="1" [(ngModel)]="emboss"/>
-    <span>{{emboss}}</span>
-</div>
-
-<label for="redscale">Fry</label>
-<div>
-    <input type="range" id="redscale" (mouseup)="applyFilters()" min="0" max="50" step=".5" [(ngModel)]="redscale"/>
-    <span>{{redscale * 2}}</span>
-</div>
-
-
-<canvas #canvas id="canvas"></canvas>
