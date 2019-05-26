@@ -1,8 +1,31 @@
+
+@media only screen and (max-width: 768px){
+    #canvas {
+        max-width: 100%;
+        height: auto;
+        margin: 2rem;
+    }
+
+    .filter-input {
+        width: 50%
+    }
+}
+
 #canvas {
     width: 500px;
     height: 500px;
+    margin: 2rem;
 }
 
 #file {
+    display: none;
+}
+
+.container {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+#downloader {
     display: none;
 }

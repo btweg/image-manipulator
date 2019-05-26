@@ -17,9 +17,12 @@ export class EditorComponent implements OnInit, AfterViewInit{
   emboss: number = 0;
   redscale: number = 0;
 
+  filtersApplied = false;
+
   originalImage = new Image();
 
   @ViewChild('canvas') canvas: ElementRef;
+  @ViewChild('download') downloadLink: ElementRef;
 
   constructor() { }
 
@@ -27,6 +30,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
   }
 
   selectFile(fileEvent): void {
+    this.resetFilters();
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -50,6 +54,7 @@ export class EditorComponent implements OnInit, AfterViewInit{
 
   applyFilters() {
     this.resetCanvas();
+    this.filtersApplied = true;
     const width = this.canvas.nativeElement.width;
     const height = this.canvas.nativeElement.height;
     // tslint:disable-next-line: max-line-length
@@ -239,22 +244,43 @@ export class EditorComponent implements OnInit, AfterViewInit{
       newImage[i + 1] = imageData[i + 1] + (greenSum * (level / 100));
       newImage[i + 2] = imageData[i + 2] + (blueSum * (level / 100));
       */
-      
+
       newImage[i] =  (redSum * (level / 100));
       newImage[i + 1] = (greenSum * (level / 100));
       newImage[i + 2] = (blueSum * (level / 100));
-
 
     }
 
     return newImage;
   }
 
-  resetCanvas() {
+  saveImage() {
+
+    const canvasObj = <HTMLCanvasElement>this.canvas.nativeElement;
+    const image = canvasObj.toDataURL();
+
+    // tslint:disable-next-line: max-line-length
+    this.downloadLink.nativeElement.href = image.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+
+  }
+
+  resetCanvas(): void {
     this.context.drawImage(
       this.originalImage, 0, 0,
       this.originalImage.width, this.originalImage.height, 0, 0,
       this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+  }
+
+  resetFilters(): void {
+    this.filtersApplied = false;
+
+    this.sharpness = 0;
+    this.brightness = 0;
+    this.contrast = 0;
+    this.simpleDiffuse = 0;
+    this.noise = 0;
+    this.emboss = 0;
+    this.redscale = 0;
   }
 
 }
