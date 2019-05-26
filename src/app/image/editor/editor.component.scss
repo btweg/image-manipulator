@@ -1,8 +1,22 @@
+
+@media only screen and (max-width: 768px){
+    #canvas {
+        max-width: 100%;
+        height: auto;
+        margin: 2rem;
+    }
+}
+
 #canvas {
     width: 500px;
     height: 500px;
+    margin: 2rem;
 }
 
 #file {
     display: none;
+}
+
+.bottom-margin {
+    margin: 3rem;
 }
