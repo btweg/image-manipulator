@@ -64,4 +64,12 @@
     <canvas #canvas id="canvas"></canvas>
   </div>
 
+  <div *ngIf="filtersApplied" class="row justify-content-center">
+    <button class="btn btn-outline-dark" (click)="download.click()">Save</button>
+  </div>
+
+  <a #download href="#" id="downloader" (click)="saveImage()" download="image.png"></a>
+
+  <div class="bottom-margin"></div>
+
 </div>
